@@ -1,0 +1,14 @@
+from pathlib import Path
+from dotenv import load_dotenv
+import os
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / ".env")
+
+class Settings:
+    SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
+    SPOTIFY_CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
+    SPOTIFY_REDIRECT_URI = os.getenv("SPOTIFY_REDIRECT_URI")
+    USE_DB = os.getenv("USE_DB", "false").lower() == "true"
+
+settings = Settings()

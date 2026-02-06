@@ -1,0 +1,8 @@
+spotipy
+fastapi
+uvicorn
+httpx
+pydantic
+python-dotenv
+sqlalchemy
+openai
