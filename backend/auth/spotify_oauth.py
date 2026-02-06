@@ -16,7 +16,7 @@ sp_oauth = SpotifyOAuth(
     client_secret=settings.SPOTIFY_CLIENT_SECRET,
     redirect_uri=settings.SPOTIFY_REDIRECT_URI,
     scope=SCOPE,
-    cache_handler=None,          # IMPORTANT: disable Spotipy file cache
+    cache_handler=None,          
     show_dialog=True
 )
 
@@ -34,7 +34,6 @@ def handle_callback(code: str) -> str:
     """
     token_repo = get_token_repository()
 
-    # Exchange auth code for tokens (Spotipy v2-safe)
     token_info = spotify_oauth.get_access_token(
         code,
         check_cache=False
@@ -47,7 +46,6 @@ def handle_callback(code: str) -> str:
 
     user_id = user_profile["id"]
 
-    # Persist tokens in DB
     token_repo.save_token(user_id, token_info)
 
     return user_id

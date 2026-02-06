@@ -16,17 +16,14 @@ def create_playlist_from_library(
         tracks.extend([i["track"] for i in results["items"] if i["track"]])
         results = sp.next(results) if results["next"] else None
 
-    # duration filter
     if filters.max_duration_sec:
         tracks = [
             t for t in tracks
             if t["duration_ms"] <= filters.max_duration_sec * 1000
         ]
 
-    # genre enrichment
     tracks = enrich_tracks_with_genres(user_id, tracks)
 
-    # genre filtering with MCP confidence
     if filters.genres and mcp_confident(filters.mcp_confidence):
         filtered = [
             t for t in tracks
