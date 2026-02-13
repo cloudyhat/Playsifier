@@ -1,7 +1,15 @@
 from fastapi import FastAPI
+from starlette.middleware.sessions import SessionMiddleware
+
 from backend.api import auth_routes, playlist_routes
+from backend.core.config import settings
 
 app = FastAPI(title="Playsifier API")
+
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=settings.SECRET_KEY
+)
 
 @app.get("/")
 def root():

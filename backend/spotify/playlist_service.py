@@ -33,9 +33,8 @@ def create_playlist_from_library(
             tracks = filtered
 
     ranked = rank_tracks(
-        user_id,
         tracks,
-        mood="happy" if filters.min_valence else None
+        filters
     )
 
     selected = ranked[:filters.num_songs]

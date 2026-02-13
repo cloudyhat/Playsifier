@@ -1,45 +1,62 @@
-from backend.spotify.client import get_spotify_client
-
-# Mood → audio feature targets
-MOOD_PROFILES = {
-    "chill": {"energy": 0.3, "valence": 0.4},
-    "happy": {"energy": 0.7, "valence": 0.8},
-    "sad": {"energy": 0.2, "valence": 0.2},
-    "energetic": {"energy": 0.85, "valence": 0.6},
-}
+from datetime import datetime
+from collections import defaultdict
 
 def rank_tracks(
-    user_id: str,
     tracks: list[dict],
-    mood: str | None = None,
+    filters=None,
 ):
-    sp = get_spotify_client(user_id)
+    current_year = datetime.now().year
+    artist_count = defaultdict(int)
 
-    ids = [t["id"] for t in tracks if t.get("id")]
-    features_map = {}
-
-    for i in range(0, len(ids), 100):
-        batch = ids[i:i+100]
-        features = sp.audio_features(batch)
-        for f in features:
-            if f:
-                features_map[f["id"]] = f
+    # First pass to count artist frequency
+    for t in tracks:
+        for a in t.get("artists", []):
+            artist_count[a["id"]] += 1
 
     def score(track):
-        af = features_map.get(track["id"])
-        if not af:
-            return 0
+        # --- Popularity ---
+        pop_score = track.get("popularity", 0) / 100
 
-        base = af["energy"] + af["valence"]
+        # --- Recency ---
+        release_date = track.get("album", {}).get("release_date", "")
+        release_year = int(release_date[:4]) if release_date else current_year
+        years_old = current_year - release_year
+        recency_score = max(0, 1 - (years_old / 10))
 
-        if mood and mood in MOOD_PROFILES:
-            target = MOOD_PROFILES[mood]
-            mood_score = (
-                1 - abs(af["energy"] - target["energy"])
-                + 1 - abs(af["valence"] - target["valence"])
-            )
-            return base + mood_score
+        # --- Genre Match ---
+        if filters and filters.genres:
+            inferred = set(track.get("inferred_genres", []))
+            target = set(filters.genres)
+            if not target:
+                genre_score = 0.5
+            else:
+                genre_score = len(inferred & target) / len(target)
+        else:
+            genre_score = 0.5
 
-        return base
+        # --- Duration Fit ---
+        if filters and filters.max_duration_sec:
+            max_dur = filters.max_duration_sec * 1000
+            duration_ratio = track.get("duration_ms", 0) / max_dur
+            duration_score = max(0, 1 - duration_ratio)
+        else:
+            duration_score = 0.5
 
-    return sorted(tracks, key=score, reverse=True)
+        # --- Diversity ---
+        first_artist = track.get("artists", [{}])[0].get("id")
+        freq = artist_count.get(first_artist, 1)
+        diversity_score = 1 / freq
+
+        # --- Final Weighted Score ---
+        final_score = (
+            0.35 * pop_score +
+            0.20 * recency_score +
+            0.25 * genre_score +
+            0.10 * duration_score +
+            0.10 * diversity_score
+        )
+
+        return final_score
+
+    ranked = sorted(tracks, key=score, reverse=True)
+    return ranked
