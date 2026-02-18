@@ -18,9 +18,10 @@ def generate_structured(request: Request, req: GenerateRequest):
     filters = PlaylistFilters(
         num_songs=req.num_songs,
         max_duration_sec=req.max_duration_sec,
+        genres=req.genres,
+        mood=req.mood,
         mcp_confidence=0.8
     )
-
     url = create_playlist_from_library(user_id, filters)
 
     return {

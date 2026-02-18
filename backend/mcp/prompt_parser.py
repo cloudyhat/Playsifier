@@ -6,20 +6,23 @@ KNOWN_GENRES = [
     "hip hop", "lofi", "jazz", "classical", "edm"
 ]
 
-MOOD_RULES = {
-    "chill": {"max_energy": 0.6},
-    "calm": {"max_energy": 0.5},
-    "energetic": {"min_energy": 0.7},
-    "happy": {"min_valence": 0.6},
-    "sad": {"max_valence": 0.4},
-    "focus": {"max_energy": 0.5},
-}
+KNOWN_MOODS = [
+    "chill",
+    "calm",
+    "energetic",
+    "happy",
+    "sad",
+    "focus"
+]
 
 def parse_prompt(prompt: str) -> PlaylistFilters:
     prompt = prompt.lower().replace("-", " ")
 
     filters = PlaylistFilters(
-        num_songs=20,
+        num_songs=req.num_songs,
+        max_duration_sec=req.max_duration_sec,
+        genres=req.genres,
+        mood=req.mood,
         mcp_confidence=0.8
     )
 
@@ -38,11 +41,9 @@ def parse_prompt(prompt: str) -> PlaylistFilters:
     if genres:
         filters.genres = genres
 
-    # mood → audio features (first match wins)
-    for mood, rules in MOOD_RULES.items():
+    for mood in KNOWN_MOODS:
         if mood in prompt:
-            for k, v in rules.items():
-                setattr(filters, k, v)
+            filters.mood = mood
             break
 
     return filters

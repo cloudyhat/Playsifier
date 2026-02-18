@@ -1,5 +1,7 @@
 from datetime import datetime
 from collections import defaultdict
+from backend.spotify.mood_profiles import MOOD_PROFILES
+import random
 
 def rank_tracks(
     tracks: list[dict],
@@ -47,14 +49,31 @@ def rank_tracks(
         freq = artist_count.get(first_artist, 1)
         diversity_score = 1 / freq
 
-        # --- Final Weighted Score ---
-        final_score = (
-            0.35 * pop_score +
-            0.20 * recency_score +
-            0.25 * genre_score +
-            0.10 * duration_score +
-            0.10 * diversity_score
-        )
+        profile = None
+        if filters and filters.mood:
+            profile = MOOD_PROFILES.get(filters.mood)
+
+        if profile:
+            # genre boost
+            inferred = track.get("inferred_genres", [])
+            boosted = profile["genre_boost"]
+            genre_boost_score = 1 if any(b in g for g in inferred for b in boosted) else 0.5
+
+            final_score = (
+                profile["popularity_weight"] * pop_score +
+                profile["recency_weight"] * recency_score +
+                0.2 * genre_boost_score +
+                0.1 * diversity_score
+            )
+        else:
+            final_score = (
+                0.35 * pop_score +
+                0.20 * recency_score +
+                0.25 * genre_score +
+                0.10 * duration_score +
+                0.10 * diversity_score
+            )
+
 
         return final_score
 

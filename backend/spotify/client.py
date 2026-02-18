@@ -10,7 +10,7 @@ def get_spotify_client(user_id: str) -> Spotify:
 
     if not token_info:
         raise HTTPException(
-            status_code=401,
+            status_code=401,    
             detail="User not authenticated with Spotify. Please login first."
         )
 
