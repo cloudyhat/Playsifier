@@ -10,6 +10,9 @@ def rank_tracks(
     current_year = datetime.now().year
     artist_count = defaultdict(int)
 
+    library_weight = 1.15
+    recommendation_weight = 1.05
+
     # First pass to count artist frequency
     for t in tracks:
         for a in t.get("artists", []):
@@ -47,7 +50,7 @@ def rank_tracks(
         # --- Diversity ---
         first_artist = track.get("artists", [{}])[0].get("id")
         freq = artist_count.get(first_artist, 1)
-        diversity_score = 1 / freq
+        diversity_score = 1 / (freq ** 1.5)
 
         profile = None
         if filters and filters.mood:
@@ -74,6 +77,13 @@ def rank_tracks(
                 0.10 * diversity_score
             )
 
+
+        source = track.get("_source")
+
+        if source == "library":
+            final_score *= library_weight
+        elif source == "recommended":
+            final_score *= recommendation_weight
 
         return final_score
 

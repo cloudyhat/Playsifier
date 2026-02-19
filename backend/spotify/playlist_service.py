@@ -1,8 +1,11 @@
+from collections import defaultdict
 from backend.schemas.playlist_filters import PlaylistFilters
 from backend.spotify.client import get_spotify_client
+from backend.spotify.client import get_spotify_recommendations
 from backend.spotify.genre_service import enrich_tracks_with_genres
 from backend.spotify.audio_ranker import rank_tracks
 from backend.core.mcp import mcp_confident
+import random
 
 def create_playlist_from_library(
     user_id: str,
@@ -10,11 +13,44 @@ def create_playlist_from_library(
 ):
     sp = get_spotify_client(user_id)
 
-    tracks = []
+    library_tracks = []
     results = sp.current_user_saved_tracks(limit=50)
     while results:
-        tracks.extend([i["track"] for i in results["items"] if i["track"]])
+        library_tracks.extend([i["track"] for i in results["items"] if i["track"]])
         results = sp.next(results) if results["next"] else None
+
+    track_ids = [t["id"] for t in library_tracks if t.get("id")]
+
+    seed_tracks = random.sample(
+        track_ids,
+        min(3, len(track_ids))
+    ) if track_ids else []
+
+
+    recommended_tracks = get_spotify_recommendations(
+        user_id=user_id,
+        seed_genres=filters.genres,
+        seed_tracks=seed_tracks,
+        limit=100
+    )
+
+    for t in library_tracks:
+        t["_source"] = "library"
+
+    for t in recommended_tracks:
+        t["_source"] = "recommended"
+
+    tracks = library_tracks + recommended_tracks
+
+    seen = set()
+    unique_tracks = []
+    for t in tracks:
+        if t["id"] not in seen:
+            unique_tracks.append(t)
+            seen.add(t["id"])
+
+    tracks = unique_tracks
+
 
     if filters.max_duration_sec:
         tracks = [
@@ -36,8 +72,30 @@ def create_playlist_from_library(
         tracks,
         filters
     )
+    selected = []
+    artist_seen = defaultdict(int)
 
-    selected = ranked[:filters.num_songs]
+    max_per_artist = max(2, filters.num_songs // 4)
+
+    for track in ranked:
+        first_artist = track.get("artists", [{}])[0].get("id") or "unknown"
+
+        if artist_seen[first_artist] < max_per_artist:
+            selected.append(track)
+            artist_seen[first_artist] += 1
+
+        if len(selected) == filters.num_songs:
+            break
+
+    if len(selected) < filters.num_songs:
+        already_selected_ids = {t["id"] for t in selected}
+
+        for track in ranked:
+            if track["id"] not in already_selected_ids:
+                selected.append(track)
+
+            if len(selected) == filters.num_songs:
+                break
 
     playlist = sp.user_playlist_create(
         sp.me()["id"],

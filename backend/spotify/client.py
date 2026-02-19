@@ -22,3 +22,43 @@ def get_spotify_client(user_id: str) -> Spotify:
         token_repo.save_token(user_id, token_info)
 
     return Spotify(auth=token_info["access_token"])
+
+def get_spotify_recommendations(
+    user_id: str,
+    seed_genres: list[str] | None = None,
+    seed_tracks: list[str] | None = None,
+    limit: int = 50,
+):
+    sp = get_spotify_client(user_id)
+
+    try:
+        tracks = []
+
+        if seed_genres:
+            for genre in seed_genres[:2]: 
+                search_query = f"genre:{genre}"
+                search_results = sp.search(
+                    q=search_query,
+                    type="track",
+                    limit=min(limit, 50)
+                )
+                tracks.extend(search_results["tracks"]["items"])
+
+        if seed_tracks:
+            for track_id in seed_tracks[:3]:
+                track = sp.track(track_id)
+                artist_id = track["artists"][0]["id"]
+
+                artist_top = sp.artist_top_tracks(artist_id)
+                tracks.extend(artist_top["tracks"])
+
+        # Deduplicate
+        unique_tracks = {t["id"]: t for t in tracks if t.get("id")}
+
+        return list(unique_tracks.values())[:limit]
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Spotify hybrid recommendation error: {str(e)}"
+        )

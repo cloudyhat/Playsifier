@@ -37,7 +37,16 @@ def generate_from_prompt(request: Request, req: PromptGenerateRequest):
     if not user_id:
         raise HTTPException(status_code=401, detail="User not authenticated")
 
-    filters = parse_prompt(req.prompt)
+    base_filters = PlaylistFilters(
+        num_songs=15,
+        max_duration_sec=None,
+        genres=[],
+        mood=None,
+        mcp_confidence=0.8
+    )
+
+    filters = parse_prompt(req.prompt, base_filters)
+
     filters.mcp_confidence = 0.8
 
     url = create_playlist_from_library(user_id, filters)
