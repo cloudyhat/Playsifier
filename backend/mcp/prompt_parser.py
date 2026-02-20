@@ -27,25 +27,47 @@ def parse_prompt(prompt: str, base_filters: PlaylistFilters) -> PlaylistFilters:
         mcp_confidence=base_filters.mcp_confidence
     )
 
-    # --- Extract number of songs (robust) ---
-    match = re.search(r"\b(\d+)\b", prompt)
+    match = re.search(r"(about|around|approx)?\s*(\d+)\s*(songs|tracks)?", prompt)
     if match:
-        filters.num_songs = int(match.group(1))
+        filters.num_songs = int(match.group(2))
 
-    # --- Extract duration constraint ---
-    match = re.search(r"under\s+(\d+)\s*(minute|min|minutes)", prompt)
+    match = re.search(r"(under|less than)\s+(\d+)\s*(minute|min|minutes)", prompt)
     if match:
-        filters.max_duration_sec = int(match.group(1)) * 60
+        filters.max_duration_sec = int(match.group(2)) * 60
 
-    # --- Extract genres ---
-    detected_genres = [g for g in KNOWN_GENRES if g in prompt]
-    if detected_genres:
-        filters.genres = detected_genres
+    match = re.search(r"(\d+)\s*(hour|hours)", prompt)
+    if match:
+        total_seconds = int(match.group(1)) * 3600
 
-    # --- Extract mood ---
+        avg_song_sec = 210
+        filters.num_songs = max(1, total_seconds // avg_song_sec)
+
+    excluded = []
+    for genre in KNOWN_GENRES:
+        if f"no {genre}" in prompt:
+            excluded.append(genre)
+
+    if "only" in prompt:
+        detected = [g for g in KNOWN_GENRES if g in prompt]
+        if detected:
+            filters.genres = detected
+    else:
+        detected = [g for g in KNOWN_GENRES if g in prompt]
+        if detected:
+            filters.genres = detected
+
+    if excluded:
+        filters.genres = [g for g in filters.genres if g not in excluded]
+
     for mood in KNOWN_MOODS:
         if mood in prompt:
             filters.mood = mood
             break
+
+    if "make me happy" in prompt or "cheer me up" in prompt:
+        filters.mood = "happy"
+
+    if "help me focus" in prompt:
+        filters.mood = "focus"
 
     return filters
