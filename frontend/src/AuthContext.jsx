@@ -8,23 +8,26 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function checkAuth() {
-      try {
-        const res = await apiFetch("/auth/me");
+  async function checkAuth() {
+    try {
+      const res = await apiFetch("/auth/me");
 
-        if (res.ok) {
-          const data = await res.json();
-          setUser(data.user_id);
-        }
-      } catch (err) {
-        console.log("Not authenticated");
-      } finally {
-        setLoading(false);
+      if (!res.ok) {
+        setUser(null);
+        return;
       }
-    }
 
-    checkAuth();
-  }, []);
+      const data = await res.json();
+      setUser(data);
+    } catch (err) {
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  checkAuth();
+}, []);
 
   return (
     <AuthContext.Provider value={{ user, loading }}>

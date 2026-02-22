@@ -11,9 +11,11 @@ def login():
 
 @router.get("/callback")
 def callback(request: Request, code: str):
-    user_id = handle_callback(code)
+    profile = handle_callback(code)
 
-    request.session["user_id"] = user_id
+    request.session["user_id"] = profile["id"]
+    request.session["display_name"] = profile["display_name"]
+    request.session["image_url"] = profile["image_url"]
 
     return RedirectResponse(
         url="http://127.0.0.1:5173/dashboard",
@@ -29,7 +31,9 @@ def me(request: Request):
 
     return {
         "authenticated": True,
-        "user_id": user_id
+        "user_id": user_id,
+        "display_name": request.session.get("display_name"),
+        "image_url": request.session.get("image_url")
     }
 
 @router.get("/logout")

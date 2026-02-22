@@ -1,4 +1,5 @@
 from collections import defaultdict
+from backend.utils.playlist_namer import generate_default_name
 from backend.schemas.playlist_filters import PlaylistFilters
 from backend.spotify.client import get_spotify_client
 from backend.spotify.client import get_spotify_recommendations
@@ -10,6 +11,7 @@ import random
 def create_playlist_from_library(
     user_id: str,
     filters: PlaylistFilters,
+    playlist_name=None
 ):
     sp = get_spotify_client(user_id)
 
@@ -97,9 +99,11 @@ def create_playlist_from_library(
             if len(selected) == filters.num_songs:
                 break
 
+    name = playlist_name or generate_default_name(filters)
+
     playlist = sp.user_playlist_create(
         sp.me()["id"],
-        "Generated Playlist",
+        name,
         public=False
     )
 

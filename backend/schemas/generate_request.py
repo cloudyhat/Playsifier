@@ -6,3 +6,4 @@ class GenerateRequest(BaseModel):
     max_duration_sec: Optional[int] = None
     genres: Optional[List[str]] = None
     mood: Optional[str] = None
+    playlist_name: Optional[str] = None

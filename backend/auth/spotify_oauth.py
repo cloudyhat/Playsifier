@@ -26,15 +26,26 @@ def get_login_url() -> str:
     return sp_oauth.get_authorize_url()
 
 
-def handle_callback(code: str) -> str:
+def handle_callback(code: str):
     token_repo = get_token_repository()
 
-    token_info = sp_oauth.get_access_token(code, as_dict=True) 
+    token_info = sp_oauth.get_access_token(code, as_dict=True)
 
     sp = Spotify(auth=token_info["access_token"])
     user_profile = sp.me()
 
     user_id = user_profile["id"]
+    display_name = user_profile.get("display_name")
+    image_url = (
+        user_profile["images"][0]["url"]
+        if user_profile.get("images")
+        else None
+    )
+
     token_repo.save_token(user_id, token_info)
 
-    return user_id
+    return {
+        "id": user_id,
+        "display_name": display_name,
+        "image_url": image_url
+    }

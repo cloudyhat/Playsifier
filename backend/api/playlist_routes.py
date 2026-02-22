@@ -22,7 +22,12 @@ def generate_structured(request: Request, req: GenerateRequest):
         mood=req.mood,
         mcp_confidence=0.8
     )
-    url = create_playlist_from_library(user_id, filters)
+
+    url = create_playlist_from_library(
+    user_id,
+    filters,
+    playlist_name=req.playlist_name
+    )
 
     return {
         "playlist_url": url,
@@ -49,7 +54,11 @@ def generate_from_prompt(request: Request, req: PromptGenerateRequest):
 
     filters.mcp_confidence = 0.8
 
-    url = create_playlist_from_library(user_id, filters)
+    url = create_playlist_from_library(
+        user_id,
+        filters,
+        playlist_name=req.playlist_name
+    )
 
     return {
         "playlist_url": url,
