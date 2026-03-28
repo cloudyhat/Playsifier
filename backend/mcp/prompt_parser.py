@@ -1,5 +1,5 @@
 import re
-from backend.schemas.playlist_filters import PlaylistFilters
+from schemas.playlist_filters import PlaylistFilters
 
 KNOWN_GENRES = [
     "pop", "rock", "indie", "acoustic",

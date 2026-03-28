@@ -1,4 +1,4 @@
-from backend.storage.base import TokenRepository
+from storage.base import TokenRepository
 
 class InMemoryTokenRepository(TokenRepository):
     def __init__(self):

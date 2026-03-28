@@ -1,8 +1,8 @@
 from spotipy import Spotify
 from spotipy.oauth2 import SpotifyOAuth
 
-from backend.core.config import settings
-from backend.core.dependencies import get_token_repository
+from core.config import settings
+from core.dependencies import get_token_repository
 
 SCOPE = " ".join([
         "user-library-read",

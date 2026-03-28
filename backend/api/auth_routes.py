@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Request
 from fastapi.responses import RedirectResponse
 from fastapi import HTTPException
-from backend.auth.spotify_oauth import get_login_url, handle_callback
+from auth.spotify_oauth import get_login_url, handle_callback
 
 router = APIRouter()
 

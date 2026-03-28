@@ -1,5 +1,5 @@
 from collections import Counter
-from backend.spotify.client import get_spotify_client
+from spotify.client import get_spotify_client
 
 def enrich_tracks_with_genres(user_id: str, tracks: list[dict]) -> list[dict]:
     """

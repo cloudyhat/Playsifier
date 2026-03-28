@@ -45,6 +45,41 @@
   <li>Modular and extensible backend architecture</li>
 </ul>
 
+<h3>🐳 Quick Start with Docker</h3>
+
+<p>
+  The easiest way to run Playsifier is using Docker and Docker Compose:
+</p>
+
+<pre><code class="language-bash"># 1. Clone the repository
+git clone https://github.com/yourusername/Playsifier
+cd Playsifier
+
+# 2. Setup environment (Windows)
+setup-docker.bat
+
+# Or Linux/Mac:
+./setup-docker.sh
+
+# 3. Or manually:
+cp .env.example .env
+# Edit .env with your Spotify API credentials
+docker-compose up -d
+</code></pre>
+
+<p>
+  <strong>Access URLs:</strong>
+</p>
+<ul>
+  <li>Frontend: http://localhost:5173</li>
+  <li>Backend API: http://localhost:8000</li>
+  <li>API Documentation: http://localhost:8000/docs</li>
+</ul>
+
+<p>
+  See <a href="DOCKER_DEPLOYMENT.md">DOCKER_DEPLOYMENT.md</a> for detailed deployment instructions.
+</p>
+
 <h3>🎼 Playlist Generation Logic</h3>
 <p>
   Playsifier follows a transparent, filter-driven approach to playlist generation.

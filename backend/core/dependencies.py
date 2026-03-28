@@ -1,4 +1,4 @@
-from backend.core.token_repository import TokenRepository
+from core.token_repository import TokenRepository
 
 _token_repo = TokenRepository()
 

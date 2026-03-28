@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Request, HTTPException
-from backend.schemas.generate_request import GenerateRequest
-from backend.schemas.prompt_request import PromptGenerateRequest
-from backend.schemas.playlist_filters import PlaylistFilters
-from backend.spotify.playlist_service import create_playlist_from_library
-from backend.mcp.prompt_parser import parse_prompt
+from schemas.generate_request import GenerateRequest
+from schemas.prompt_request import PromptGenerateRequest
+from schemas.playlist_filters import PlaylistFilters
+from spotify.playlist_service import create_playlist_from_library
+from mcp.prompt_parser import parse_prompt
 
 router = APIRouter()
 

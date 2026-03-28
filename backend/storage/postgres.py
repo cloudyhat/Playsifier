@@ -1,4 +1,4 @@
-from backend.storage.base import TokenRepository
+from storage.base import TokenRepository
 
 class PostgresTokenRepository(TokenRepository):
     def save_token(self, user_id: str, token_data: dict):

@@ -1,6 +1,6 @@
 from spotipy import Spotify
-from backend.auth.spotify_oauth import sp_oauth
-from backend.core.dependencies import get_token_repository
+from auth.spotify_oauth import sp_oauth
+from core.dependencies import get_token_repository
 from fastapi import HTTPException
 
 

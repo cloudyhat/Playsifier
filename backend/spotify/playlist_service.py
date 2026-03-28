@@ -1,11 +1,11 @@
 from collections import defaultdict
-from backend.utils.playlist_namer import generate_default_name
-from backend.schemas.playlist_filters import PlaylistFilters
-from backend.spotify.client import get_spotify_client
-from backend.spotify.client import get_spotify_recommendations
-from backend.spotify.genre_service import enrich_tracks_with_genres
-from backend.spotify.audio_ranker import rank_tracks
-from backend.core.mcp import mcp_confident
+from utils.playlist_namer import generate_default_name
+from schemas.playlist_filters import PlaylistFilters
+from spotify.client import get_spotify_client
+from spotify.client import get_spotify_recommendations
+from spotify.genre_service import enrich_tracks_with_genres
+from spotify.audio_ranker import rank_tracks
+from core.mcp import mcp_confident
 import random
 
 def create_playlist_from_library(

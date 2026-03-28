@@ -1,6 +1,6 @@
 from datetime import datetime
 from collections import defaultdict
-from backend.spotify.mood_profiles import MOOD_PROFILES
+from spotify.mood_profiles import MOOD_PROFILES
 import random
 
 def rank_tracks(
