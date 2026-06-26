@@ -8,7 +8,7 @@
 
 <p>
   The project is being built to deeply understand Spotify’s recommendation ecosystem,
-  backend architecture, and prompt-to-logic conversion by implementing everything from scratch.
+  backend architecture, and prompt-to-logic conversion by implementing everything from scratch .
 </p>
 
 <h3>🚧 Current Status</h3>
